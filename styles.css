@@ -80,71 +80,46 @@ button.active {
   box-shadow: 0 0 20px rgba(0,0,0,0.2);
   transition: background 0.3s ease;
 }
-.plumbob-container {
-  /* This value determines the 3D depth and perspective */
-  perspective: 400px;
-  transform-style: preserve-3d;
-  width: 100px; /* Adjust size as needed */
-  height: 200px; /* Adjust size as needed */
-  position: relative;
-  margin: 100px auto;
-  animation: spin 5s linear infinite;
-}
-
-/* Define the spin animation */
-@keyframes spin {
-  from {
-    transform: rotateY(0deg) rotateX(20deg);
-  }
-  to {
-    transform: rotateY(360deg) rotateX(20deg);
-  }
-}
-
-/* Style for the plumbob halves */
+/* Plumbob Container */
 .plumbob {
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin: auto;
+  position: relative;
+  width: 60px;
+  height: 80px;
+  margin: 50px auto;
+  transform: rotate(45deg);
+  animation: float 2s ease-in-out infinite alternate;
 }
 
-/* Creating the top pyramid */
-.plumbob.top {
-  width: 0;
-  height: 0;
-  border-left: 50px solid transparent;
-  border-right: 50px solid transparent;
-  border-bottom: 86.6px solid #66bb46; /* The green color of the plumbob */
-  top: 0;
-  /* Rotate the shape into 3D space */
-  transform: rotateX(60deg) rotateZ(30deg);
-}
-
-/* Creating the bottom pyramid */
-.plumbob.bottom {
-  width: 0;
-  height: 0;
-  border-left: 50px solid transparent;
-  border-right: 50px solid transparent;
-  border-top: 86.6px solid #66bb46; /* Same green color */
-  bottom: 0;
-  /* Rotate the shape and flip it to form the bottom half */
-  transform: rotateX(-60deg) rotateZ(30deg);
-}
-
-/* Add a pseudo-element for a shiny, reflective look */
-.plumbob.top::after {
+/* Plumbob Top Triangle */
+.plumbob::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 70%);
-  transform: translate(-50%, -50%) rotate(30deg);
+  height: 50%;
+  background: linear-gradient(to bottom, #00ff00, #00cc00);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
+
+/* Plumbob Bottom Triangle */
+.plumbob::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, #00ff00, #00cc00);
+  clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% { transform: rotate(45deg) translateY(0); }
+  100% { transform: rotate(45deg) translateY(-15px); }
+}
+
 /* LED Effects */
 @keyframes pulseAnim {
   0% { transform: scale(1); box-shadow: 0 0 10px currentColor; }
@@ -157,14 +132,14 @@ button.active {
   100% { transform: rotate(360deg); }
 }
 
-.plumbob-container.solid {
-  animation: none;
+.plumbob.solid {
+  animation: float 2s ease-in-out infinite alternate;
 }
 
-.plumbob-container.pulse {
+.plumbob.pulse {
   animation: pulseAnim 2.5s infinite;
 }
 
-.plumbob-container.spin {
+.plumbob.spin {
   animation: spin 5s linear infinite;
 }
