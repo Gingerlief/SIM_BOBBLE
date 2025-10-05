@@ -31,8 +31,7 @@
     </div>
 
     <div class="plumbob-container">
-      <div id="ledPreview1" class="plumbob top"></div>
-      <div id="ledPreview2" class="plumbob bottom"></div>
+      <div id="ledPreview1" class="plumbob"></div>
     </div>
 
     <div class="connection">
@@ -50,7 +49,6 @@
     const customColor = document.getElementById("customColor");
     const buttons = document.querySelectorAll(".buttons button");
     const preview1 = document.getElementById("ledPreview1");
-    const preview2 = document.getElementById("ledPreview2");
     const connectBtn = document.getElementById("connectBtn");
 
     let bluetoothDevice = null;
@@ -103,11 +101,8 @@
 
     function updatePreview() {
       preview1.style.backgroundColor = settings.color;
-      preview1.className = "plumbob top"; // reset
+      preview1.className = "plumbob"; // reset
       preview1.classList.add(settings.mode);
-      preview2.style.backgroundColor = settings.color;
-      preview2.className = "plumbob bottom"; // reset
-      preview2.classList.add(settings.mode);
     }
 
     async function connectBluetooth() {
