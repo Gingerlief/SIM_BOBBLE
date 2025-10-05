@@ -80,7 +80,71 @@ button.active {
   box-shadow: 0 0 20px rgba(0,0,0,0.2);
   transition: background 0.3s ease;
 }
+.plumbob-container {
+  /* This value determines the 3D depth and perspective */
+  perspective: 400px;
+  transform-style: preserve-3d;
+  width: 100px; /* Adjust size as needed */
+  height: 200px; /* Adjust size as needed */
+  position: relative;
+  margin: 100px auto;
+  animation: spin 5s linear infinite;
+}
 
+/* Define the spin animation */
+@keyframes spin {
+  from {
+    transform: rotateY(0deg) rotateX(20deg);
+  }
+  to {
+    transform: rotateY(360deg) rotateX(20deg);
+  }
+}
+
+/* Style for the plumbob halves */
+.plumbob {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+/* Creating the top pyramid */
+.plumbob.top {
+  width: 0;
+  height: 0;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 86.6px solid #66bb46; /* The green color of the plumbob */
+  top: 0;
+  /* Rotate the shape into 3D space */
+  transform: rotateX(60deg) rotateZ(30deg);
+}
+
+/* Creating the bottom pyramid */
+.plumbob.bottom {
+  width: 0;
+  height: 0;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-top: 86.6px solid #66bb46; /* Same green color */
+  bottom: 0;
+  /* Rotate the shape and flip it to form the bottom half */
+  transform: rotateX(-60deg) rotateZ(30deg);
+}
+
+/* Add a pseudo-element for a shiny, reflective look */
+.plumbob.top::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 70%);
+  transform: translate(-50%, -50%) rotate(30deg);
+}
 /* LED Effects */
 @keyframes pulseAnim {
   0% { transform: scale(1); box-shadow: 0 0 10px currentColor; }
@@ -93,14 +157,14 @@ button.active {
   100% { transform: rotate(360deg); }
 }
 
-.preview-led.solid {
+.plumbob-container.solid {
   animation: none;
 }
 
-.preview-led.pulse {
-  animation: pulseAnim 1.5s infinite;
+.plumbob-container.pulse {
+  animation: pulseAnim 2.5s infinite;
 }
 
-.preview-led.spin {
-  animation: spinAnim 2s linear infinite;
+.plumbob-container.spin {
+  animation: spin 5s linear infinite;
 }
