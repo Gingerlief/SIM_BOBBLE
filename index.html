@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32C6 LED Control</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>LED Color Controller</h1>
+    
+    <div class="picker-group">
+      <label for="colorDropdown">Palette:</label>
+      <select id="colorDropdown">
+        <option value="green">Green</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+      </select>
+    </div>
+
+    <div class="picker-group">
+      <label for="customColor">Custom:</label>
+      <input type="color" id="customColor" value="#00ff00">
+    </div>
+
+    <div class="buttons">
+      <button data-mode="spin">SPIN</button>
+      <button data-mode="pulse">PULSE</button>
+      <button data-mode="solid">SOLID</button>
+    </div>
+
+    <div class="preview-container">
+      <div id="ledPreview" class="preview-led"></div>
+    </div>
+
+    <div class="connection">
+      <button id="connectBtn">🔗 Connect to ESP32C6</button>
+    </div>
+  </div>
+
+  <script>
+    const settings = {
+      color: "rgb(0, 255, 0)",
+      mode: "solid"
+    };
+
+    const dropdown = document.getElementById("colorDropdown");
+    const customColor = document.getElementById("customColor");
+    const buttons = document.querySelectorAll(".buttons button");
+    const preview = document.getElementById("ledPreview");
+    const connectBtn = document.getElementById("connectBtn");
+
+    let bluetoothDevice = null;
+    let writeCharacteristic = null;
+
+    // Replace with your ESP32C6 service/characteristic UUIDs
+    const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
+    const CHARACTERISTIC_UUID = "abcdef12-3456-7890-abcd-ef1234567890";
+
+    // Convert hex (#RRGGBB) to RGB string
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    const namedColors = {
+      red: "rgb(255, 0, 0)",
+      green: "rgb(0, 255, 0)",
+      blue: "rgb(0, 0, 255)"
+    };
+
+    dropdown.addEventListener("change", (e) => {
+      settings.color = namedColors[e.target.value];
+      updatePreview();
+      sendSettings();
+    });
+
+    customColor.addEventListener("input", (e) => {
+      settings.color = hexToRgb(e.target.value);
+      updatePreview();
+      sendSettings();
+    });
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        settings.mode = button.dataset.mode;
+        highlightActive(button);
+        updatePreview();
+        sendSettings();
+      });
+    });
+
+    function highlightActive(activeButton) {
+      buttons.forEach(btn => btn.classList.remove("active"));
+      activeButton.classList.add("active");
+    }
+
+    function updatePreview() {
+      preview.style.backgroundColor = settings.color;
+      preview.className = "preview-led"; // reset
+      preview.classList.add(settings.mode);
+    }
+
+    async function connectBluetooth() {
+      try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [SERVICE_UUID] }]
+        });
+        const server = await bluetoothDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        writeCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+        console.log("✅ Connected to ESP32C6!");
+      } catch (error) {
+        console.error("❌ Bluetooth connection failed:", error);
+      }
+    }
+
+    async function sendSettings() {
+      console.log("Sending:", settings);
+      if (!writeCharacteristic) return;
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(JSON.stringify(settings));
+        await writeCharacteristic.writeValue(data);
+        console.log("📡 Sent to ESP32C6:", settings);
+      } catch (error) {
+        console.error("❌ Failed to send:", error);
+      }
+    }
+
+    connectBtn.addEventListener("click", connectBluetooth);
+
+    // Initial preview
+    updatePreview();
+  </script>
+</body>
+</html>
