@@ -86,7 +86,6 @@ button.active {
   width: 60px;
   height: 80px;
   margin: 50px auto;
-  transform: rotate(45deg);
   animation: float 2s ease-in-out infinite alternate;
 }
 
@@ -141,5 +140,5 @@ button.active {
 }
 
 .plumbob.spin {
-  animation: spin 5s linear infinite;
+  animation: spinAnim 5s linear infinite;
 }
