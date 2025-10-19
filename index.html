@@ -9,30 +9,23 @@
 <body>
   <div class="container">
     <h1>SIM PLUMBOB COLOR CONTROLLER</h1>
-    
-    <div class="picker-group">
-      <label for="colorDropdown">Palette:</label>
-      <select id="colorDropdown">
-        <option value="green">Green</option>
-        <option value="red">Red</option>
-        <option value="blue">Blue</option>
-      </select>
-    </div>
 
     <div class="picker-group">
-      <label for="customColor">Custom:</label>
-      <input type="color" id="customColor" value="#00ff00">
+      <label>Color:</label>
+      <div class="color-buttons">
+        <button class="color-btn" data-color="green" style="background-color: green;">Green</button>
+        <button class="color-btn" data-color="yellow" style="background-color: yellow;">Yellow</button>
+        <button class="color-btn" data-color="orange" style="background-color: orange;">Orange</button>
+        <button class="color-btn" data-color="red" style="background-color: red;">Red</button>
+      </div>
     </div>
 
     <div class="buttons">
-      <button data-mode="spin">SPIN</button>
       <button data-mode="pulse">PULSE</button>
-      <button data-mode="solid">SOLID</button>
+      <button data-mode="solid" class="active">SOLID</button>
     </div>
 
-
     <div id="ledPreview1" class="plumbob"></div>
-
 
     <div class="connection">
       <button id="connectBtn">🔗 Connect to ESP32C6</button>
@@ -45,9 +38,8 @@
       mode: "solid"
     };
 
-    const dropdown = document.getElementById("colorDropdown");
-    const customColor = document.getElementById("customColor");
     const buttons = document.querySelectorAll(".buttons button");
+    const colorButtons = document.querySelectorAll(".color-btn");
     const preview1 = document.getElementById("ledPreview1");
     const connectBtn = document.getElementById("connectBtn");
 
@@ -58,50 +50,45 @@
     const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
     const CHARACTERISTIC_UUID = "abcdef12-3456-7890-abcd-ef1234567890";
 
-    // Convert hex (#RRGGBB) to RGB string
-    function hexToRgb(hex) {
-      const bigint = parseInt(hex.slice(1), 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-
     const namedColors = {
-      red: "rgb(255, 0, 0)",
       green: "rgb(0, 255, 0)",
-      blue: "rgb(0, 0, 255)"
+      yellow: "rgb(255, 255, 0)",
+      orange: "rgb(255, 165, 0)",
+      red: "rgb(255, 0, 0)"
     };
 
-    dropdown.addEventListener("change", (e) => {
-      settings.color = namedColors[e.target.value];
-      updatePreview();
-      sendSettings();
-    });
-
-    customColor.addEventListener("input", (e) => {
-      settings.color = hexToRgb(e.target.value);
-      updatePreview();
-      sendSettings();
-    });
-
-    buttons.forEach(button => {
+    colorButtons.forEach(button => {
       button.addEventListener("click", () => {
-        settings.mode = button.dataset.mode;
-        highlightActive(button);
+        const color = button.dataset.color;
+        settings.color = namedColors[color];
+        highlightActiveColor(button);
         updatePreview();
         sendSettings();
       });
     });
 
-    function highlightActive(activeButton) {
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        settings.mode = button.dataset.mode;
+        highlightActiveMode(button);
+        updatePreview();
+        sendSettings();
+      });
+    });
+
+    function highlightActiveMode(activeButton) {
       buttons.forEach(btn => btn.classList.remove("active"));
+      activeButton.classList.add("active");
+    }
+
+    function highlightActiveColor(activeButton) {
+      colorButtons.forEach(btn => btn.classList.remove("active"));
       activeButton.classList.add("active");
     }
 
     function updatePreview() {
       preview1.style.color = settings.color;
-      preview1.className = "plumbob"; // reset
+      preview1.className = "plumbob";
       preview1.classList.add(settings.mode);
     }
 
@@ -133,8 +120,6 @@
     }
 
     connectBtn.addEventListener("click", connectBluetooth);
-
-    // Initial preview
     updatePreview();
   </script>
 </body>
