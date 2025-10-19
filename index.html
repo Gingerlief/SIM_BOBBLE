@@ -87,10 +87,19 @@
     }
 
     function updatePreview() {
-      preview1.style.color = settings.color;
-      preview1.className = "plumbob";
+      // Convert RGB to hex so we can derive a darker shade
+      const rgbMatch = settings.color.match(/\d+/g);
+      if (!rgbMatch) return;
+    
+      const [r, g, b] = rgbMatch.map(Number);
+      const shade = `rgb(${Math.floor(r * 0.8)}, ${Math.floor(g * 0.8)}, ${Math.floor(b * 0.8)})`;
+    
+      preview1.className = "plumbob"; // reset animation classes
+      preview1.style.setProperty('--main', settings.color);
+      preview1.style.setProperty('--shade', shade);
       preview1.classList.add(settings.mode);
     }
+
 
     async function connectBluetooth() {
       try {
