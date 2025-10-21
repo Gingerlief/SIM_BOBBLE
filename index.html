@@ -17,6 +17,8 @@
         <button class="color-btn" data-color="yellow" style="background-color: yellow;">Yellow</button>
         <button class="color-btn" data-color="orange" style="background-color: orange;">Orange</button>
         <button class="color-btn" data-color="red" style="background-color: red;">Red</button>
+        <button id="customColorBtn">🎨 Custom</button>
+        <input type="color" id="customColorPicker" style="display: none;">
       </div>
     </div>
 
@@ -40,22 +42,32 @@
 
     const buttons = document.querySelectorAll(".buttons button");
     const colorButtons = document.querySelectorAll(".color-btn");
+    const customColorBtn = document.getElementById("customColorBtn");
+    const customColorPicker = document.getElementById("customColorPicker");
     const preview1 = document.getElementById("ledPreview1");
     const connectBtn = document.getElementById("connectBtn");
 
     let bluetoothDevice = null;
     let writeCharacteristic = null;
 
-    // Replace with your ESP32C6 service/characteristic UUIDs
     const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
     const CHARACTERISTIC_UUID = "abcdef12-3456-7890-abcd-ef1234567890";
 
     const namedColors = {
       green: "rgb(0, 255, 0)",
-      yellow: "rgb(255, 237, 41)",
-      orange: "rgb(255, 117, 24)",
+      yellow: "rgb(255, 255, 0)",
+      orange: "rgb(255, 165, 0)",
       red: "rgb(255, 0, 0)"
     };
+
+    // Convert hex (#RRGGBB) to rgb()
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
 
     colorButtons.forEach(button => {
       button.addEventListener("click", () => {
@@ -65,6 +77,17 @@
         updatePreview();
         sendSettings();
       });
+    });
+
+    customColorBtn.addEventListener("click", () => {
+      customColorPicker.click();
+    });
+
+    customColorPicker.addEventListener("input", (e) => {
+      settings.color = hexToRgb(e.target.value);
+      highlightActiveColor(customColorBtn);
+      updatePreview();
+      sendSettings();
     });
 
     buttons.forEach(button => {
@@ -82,24 +105,21 @@
     }
 
     function highlightActiveColor(activeButton) {
-      colorButtons.forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".color-btn, #customColorBtn").forEach(btn => btn.classList.remove("active"));
       activeButton.classList.add("active");
     }
 
     function updatePreview() {
-      // Convert RGB to hex so we can derive a darker shade
       const rgbMatch = settings.color.match(/\d+/g);
       if (!rgbMatch) return;
-    
       const [r, g, b] = rgbMatch.map(Number);
       const shade = `rgb(${Math.floor(r * 0.8)}, ${Math.floor(g * 0.8)}, ${Math.floor(b * 0.8)})`;
-    
-      preview1.className = "plumbob"; // reset animation classes
+
+      preview1.className = "plumbob";
       preview1.style.setProperty('--main', settings.color);
       preview1.style.setProperty('--shade', shade);
       preview1.classList.add(settings.mode);
     }
-
 
     async function connectBluetooth() {
       try {
